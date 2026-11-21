@@ -1,6 +1,6 @@
 # Phonic meeting agent
 
-Send an interactive meeting agent to Zoom, Google Meet, Microsoft Teams, or Webex. It answers questions aloud and takes spoken requests to share a webpage, post in chat, or leave the call.
+Send an interactive meeting agent to Google Meet, Zoom, Microsoft Teams, or Webex. It answers questions aloud and takes spoken requests to share a webpage, post in chat, or leave the call.
 
 Recall streams meeting audio directly to Phonic. This Python app launches the bot and handles meeting actions through webhooks. See [Recall's Phonic integration](https://docs.recall.ai/docs/phonic), [Recall meeting tools](https://docs.recall.ai/docs/meeting-agents-adding-tools-to-your-meeting-agents), and [Phonic webhook tools](https://docs.phonic.ai/docs/build/tools/webhook_tools).
 
@@ -104,7 +104,7 @@ Keep the app and tunnel running, then open [the launcher](http://127.0.0.1:8006)
 
 ### 6. Send the agent to a meeting
 
-Join a meeting on any of the four supported platforms. For a quick test, start one at [meet.new](https://meet.new/). Paste the direct meeting link into the launcher and select **Send agent**. Admit **phonic demo** if prompted.
+For your first test, start a Google Meet call at [meet.new](https://meet.new/). You can also use a link from any supported platform. Paste the direct meeting link into the launcher, select **Send agent**, and admit **phonic demo** if prompted.
 
 ### 7. Try the agent
 
