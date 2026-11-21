@@ -1,10 +1,12 @@
 # Phonic meeting agent
 
-A small Google Meet demo using [Recall.ai's native Phonic integration](https://docs.recall.ai/docs/phonic) and five [meeting tools](https://docs.recall.ai/docs/meeting-agents-adding-tools-to-your-meeting-agents). Recall connects meeting audio directly to Phonic. This Python app launches the bot and handles Phonic's authenticated [webhook tools](https://docs.phonic.ai/docs/build/tools/webhook_tools).
+Send an interactive meeting agent to Google Meet, Zoom, Microsoft Teams, or Webex. It answers questions aloud and takes spoken requests to share a webpage, post in chat, or leave the call.
+
+Recall streams meeting audio directly to Phonic. This Python app launches the bot and handles meeting actions through webhooks. See [Recall's Phonic integration](https://docs.recall.ai/docs/phonic), [Recall meeting tools](https://docs.recall.ai/docs/meeting-agents-adding-tools-to-your-meeting-agents), and [Phonic webhook tools](https://docs.phonic.ai/docs/build/tools/webhook_tools).
 
 ## Behavior
 
-Address the agent as **“Assistant”** or **“phonic demo”**, followed by a question or command. It joins silently and posts an introduction in chat. Each tool posts its result in chat; requested text and links are their own confirmation.
+Address the agent as **“Assistant”** or **“phonic demo”**, followed by a question or command. It joins silently. Where meeting chat is available, it posts an introduction and tool results. Requested text and links are their own confirmation.
 
 | Action | Tool |
 | --- | --- |
@@ -14,7 +16,7 @@ Address the agent as **“Assistant”** or **“phonic demo”**, followed by a
 | Stop the screen share while keeping voice available | `stop_screenshare()` |
 | Leave the meeting | `leave_call()` |
 
-Addressing the agent is an instruction to Phonic's model, not an enforced input filter. Phonic receives the meeting's mixed audio. This sample has no mute/listening controls or speaking avatar. Phonic's protocol-level mute messages control incoming audio; they are not a speech-mute feature exposed through Recall's native integration.
+Phonic receives the meeting's mixed audio and uses the agent prompt to decide when to respond.
 
 ## Requirements
 
@@ -22,7 +24,7 @@ Addressing the agent is an instruction to Phonic's model, not an enforced input 
 - A Recall workspace and its regional REST API key, with the Phonic integration available.
 - A Phonic project and an API key that can create and update its tools.
 - An HTTPS tunnel, such as cloudflared, for tool callbacks.
-- A Google account to host the meeting.
+- A meeting link from one of the supported platforms.
 
 ## Quickstart
 
@@ -102,9 +104,11 @@ Keep the app and tunnel running, then open [the launcher](http://127.0.0.1:8006)
 
 ### 6. Send the agent to a meeting
 
-Create and join a meeting at [meet.new](https://meet.new/). Paste the meeting URL into the launcher and select **Send agent**. Admit **phonic demo** if Google Meet prompts you.
+For your first test, start a Google Meet call at [meet.new](https://meet.new/). Paste the direct meeting link into the launcher, select **Send agent**, and admit **phonic demo** if prompted.
 
 ### 7. Try the agent
+
+Try the chat commands in a meeting that allows bot chat. [Recall chat support](https://docs.recall.ai/docs/sending-chat-messages)
 
 | Try saying |
 | --- |
@@ -117,7 +121,7 @@ Create and join a meeting at [meet.new](https://meet.new/). Paste the meeting UR
 | “Assistant, stop sharing.” |
 | “Assistant, leave the meeting.” |
 
-Confirm that the new page replaces the previous share, its exact link appears in chat, and voice still works after sharing stops. API acceptance does not prove that the webpage finished loading or that participants saw it.
+Confirm that the new page replaces the previous share and voice still works after sharing stops. When chat is available, check that the exact link appears. API acceptance does not prove that the webpage finished loading or that participants saw it.
 
 The session defaults to ten minutes, starting when the launcher requests the bot. Expiration invalidates the tool token and requests departure. Ctrl+C also requests departure for active sessions. If departure cannot be confirmed, check the meeting or Recall dashboard before closing the tunnel. After the bot leaves, stop the app and tunnel. Launch another bot to repeat the demo.
 
@@ -133,7 +137,7 @@ The session defaults to ten minutes, starting when the launcher requests the bot
 | `app/recall_client.py` | Create Bot and the four Recall action endpoints. |
 | `app/config.py` | Load and validate environment settings. |
 
-`RecallClient.create_bot()` builds the complete request: a four-core Google Meet bot with `output_media.audio.kind = "phonic"`, inline agent settings, and the introductory chat message. Phonic's five saved webhook tools call this app. Its built-in `choose_not_to_respond` behavior lets it wait silently; it is not an additional meeting action.
+`RecallClient.create_bot()` requests `web_4_core` for each supported platform and sends inline agent settings with `output_media.audio.kind = "phonic"`. Phonic calls the app's callback server to run meeting tools.
 
 Each meeting gets an expiring `session_token` in Phonic's `template_variables`. The saved tools substitute that value into `X-Session-Token`. Recall also supplies `recall_bot_id` and `recall_api_base_url`; the tools forward them as headers. The server checks them against the bot and regional origin already associated with the token. A callback cannot select a different bot or redirect the Recall key.
 
@@ -144,7 +148,6 @@ Tool requests contain their parameters at the top level, alongside Phonic's `cal
 - If voice fails, check the Phonic key saved in Recall, the project name, and the selected voice. The local setup key does not configure Recall's saved credentials.
 - If voice works but actions fail, confirm the app and tunnel are running, the tunnel targets **7866**, and setup used the same Phonic project. Refresh the saved tools after a tunnel change.
 - Missing or mismatched session headers are rejected. A restart loses in-memory sessions; launch a new bot rather than reuse the old one.
-- Share trusted public HTTPS pages. The agent can display them but cannot read, click, scroll, or sign into them. Some sites may not load. This sample validates URL syntax and obvious local addresses; it is not a general-purpose web security gateway.
-- Messages and shared URLs have a 500-character limit so exact links fit in Google Meet chat. Stopping sharing preserves the most recently accepted URL.
-- The app does not persist meeting content or recordings. Recall and Phonic retention settings still apply; the app does not promise zero provider retention or delete recordings.
-- Live voice, page rendering, and chat delivery need a meeting demonstration. Verification and any check scripts stay outside this repository.
+- Share trusted public HTTPS pages that load without signing in. Check the screen share to confirm the page loaded.
+- Messages and shared URLs have a 500-character limit so exact links fit in meeting chat. Stopping sharing preserves the most recently accepted URL.
+- Recall and Phonic retain meeting data according to their respective settings.

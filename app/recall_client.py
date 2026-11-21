@@ -61,6 +61,18 @@ class RecallClient:
                         f"Recall could not confirm {action} (HTTP {response.status}). "
                         "Check the meeting before trying again."
                     )
+                if method == "POST" and path == "bot/" and response.status == 400:
+                    try:
+                        details = await response.json()
+                    except (aiohttp.ClientError, TimeoutError, ValueError):
+                        details = None
+                    message = details.get("meeting_url") if isinstance(details, dict) else None
+                    if isinstance(message, list):
+                        message = " ".join(
+                            item.strip() for item in message if isinstance(item, str) and item.strip()
+                        )
+                    if isinstance(message, str) and message.strip():
+                        raise RecallError(message.strip())
                 if not 200 <= response.status < 300:
                     hint = "Check the request settings and Recall workspace configuration."
                     if response.status in (401, 403):
@@ -86,31 +98,35 @@ class RecallClient:
 
     async def create_bot(self, meeting_url: str, phonic_config: dict) -> str:
         """Connect a Phonic voice session using the launcher's configuration."""
-        result = await self._request(
-            "POST", "bot/", "the meeting agent request",
-            {
-                "meeting_url": meeting_url,
-                "bot_name": BOT_NAME,
-                "variant": {"google_meet": "web_4_core"},
-                "output_media": {
-                    "audio": {
-                        "kind": "phonic",
-                        "config": phonic_config,
-                    },
-                },
-                "chat": {
-                    "on_bot_join": {
-                        "send_to": "everyone",
-                        "message": (
-                            "Start requests with 'Assistant, [command]'.\n\n"
-                            "Try 'Assistant, show https://example.com' or "
-                            "'Assistant, send the shared webpage link in chat'."
-                        ),
-                        "pin": False,
-                    },
-                },
+        payload = {
+            "meeting_url": meeting_url,
+            "bot_name": BOT_NAME,
+            "variant": {
+                "zoom": "web_4_core",
+                "google_meet": "web_4_core",
+                "microsoft_teams": "web_4_core",
+                "webex": "web_4_core",
             },
-            read_json=True,
+            "output_media": {"audio": {"kind": "phonic", "config": phonic_config}},
+        }
+        try:
+            host = urlsplit(meeting_url).hostname or ""
+        except ValueError:
+            host = ""  # Let Create Bot handle malformed links.
+        if host != "webex.com" and not host.endswith(".webex.com"):
+            payload["chat"] = {
+                "on_bot_join": {
+                    "send_to": "everyone",
+                    "message": (
+                        "Start requests with 'Assistant, [command]'.\n\n"
+                        "Try 'Assistant, show https://example.com' or "
+                        "'Assistant, send the shared webpage link in chat'."
+                    ),
+                    "pin": False,
+                },
+            }
+        result = await self._request(
+            "POST", "bot/", "the meeting agent request", payload, read_json=True,
         )
         try:
             if result is None or not isinstance(result.get("id"), str):
