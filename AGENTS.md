@@ -1,10 +1,10 @@
 # Working on this sample
 
-Keep this a small, runnable Google Meet demo with one local meeting-URL form.
+Keep this a small meeting agent demo with one local meeting-URL form. Use `web_4_core` for Zoom, Google Meet, Microsoft Teams, and Webex.
 
 - Use current Recall MCP documentation and official Phonic documentation to verify integration behavior. Record unsupported capabilities explicitly.
 - Use Recall's native Phonic audio integration and saved Phonic webhook tools. Keep exactly five conversational meeting actions: `start_screenshare`, `send_chat_message`, `send_current_page_link`, `stop_screenshare`, and `leave_call`. The user selected this scope with no speaking avatar, mute, or listening controls.
-- Join silently and post a short introduction in meeting chat. Requests addressed to Assistant or phonic demo are model instructions unless an enforced input filter is implemented.
+- Join silently and post a short introduction where meeting chat is supported. Requests addressed to Assistant or phonic demo are model instructions unless an enforced input filter is implemented.
 - Actions require explicit requests. Post concise chat feedback; requested text and links are their own feedback. Never automatically post a shared page URL or retry uncertain actions.
 - Display public HTTPS pages without reading or interacting with them. Preserve the last accepted page URL when a later request fails. Stop only the screen share; leave removes only the bot.
 - Keep credentials in the ignored root `.env` or process environment. Never log secrets, callback tokens, request bodies, or meeting content. The model must not choose the Recall bot ID or API destination.

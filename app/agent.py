@@ -18,8 +18,8 @@ from app.config import (
 PHONIC_API_URL = "https://api.phonic.ai/v1"
 TOOL_OWNER = "Recall.ai Phonic meeting sample."
 
-INSTRUCTIONS = """You are Assistant, also called phonic demo, in a Google Meet call.
-Join silently. The app posts your introduction in meeting chat.
+INSTRUCTIONS = """You are Assistant, also called phonic demo, in a meeting.
+Join silently. The app posts your introduction where meeting chat is available.
 
 Only respond when someone addresses Assistant or phonic demo, or clearly continues
 a request they already directed to you. For conversation between other people,

@@ -6,6 +6,7 @@ from uuid import UUID
 import aiohttp
 
 from app.config import BOT_NAME
+from app.meeting_url import is_webex_meeting
 
 
 class RecallError(Exception):
@@ -86,31 +87,31 @@ class RecallClient:
 
     async def create_bot(self, meeting_url: str, phonic_config: dict) -> str:
         """Connect a Phonic voice session using the launcher's configuration."""
-        result = await self._request(
-            "POST", "bot/", "the meeting agent request",
-            {
-                "meeting_url": meeting_url,
-                "bot_name": BOT_NAME,
-                "variant": {"google_meet": "web_4_core"},
-                "output_media": {
-                    "audio": {
-                        "kind": "phonic",
-                        "config": phonic_config,
-                    },
-                },
-                "chat": {
-                    "on_bot_join": {
-                        "send_to": "everyone",
-                        "message": (
-                            "Start requests with 'Assistant, [command]'.\n\n"
-                            "Try 'Assistant, show https://example.com' or "
-                            "'Assistant, send the shared webpage link in chat'."
-                        ),
-                        "pin": False,
-                    },
-                },
+        payload = {
+            "meeting_url": meeting_url,
+            "bot_name": BOT_NAME,
+            "variant": {
+                "zoom": "web_4_core",
+                "google_meet": "web_4_core",
+                "microsoft_teams": "web_4_core",
+                "webex": "web_4_core",
             },
-            read_json=True,
+            "output_media": {"audio": {"kind": "phonic", "config": phonic_config}},
+        }
+        if not is_webex_meeting(meeting_url):
+            payload["chat"] = {
+                "on_bot_join": {
+                    "send_to": "everyone",
+                    "message": (
+                        "Start requests with 'Assistant, [command]'.\n\n"
+                        "Try 'Assistant, show https://example.com' or "
+                        "'Assistant, send the shared webpage link in chat'."
+                    ),
+                    "pin": False,
+                },
+            }
+        result = await self._request(
+            "POST", "bot/", "the meeting agent request", payload, read_json=True,
         )
         try:
             if result is None or not isinstance(result.get("id"), str):
