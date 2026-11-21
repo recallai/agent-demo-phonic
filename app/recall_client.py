@@ -6,7 +6,6 @@ from uuid import UUID
 import aiohttp
 
 from app.config import BOT_NAME
-from app.meeting_url import is_webex_meeting
 
 
 class RecallError(Exception):
@@ -98,7 +97,8 @@ class RecallClient:
             },
             "output_media": {"audio": {"kind": "phonic", "config": phonic_config}},
         }
-        if not is_webex_meeting(meeting_url):
+        host = urlsplit(meeting_url).hostname or ""
+        if host != "webex.com" and not host.endswith(".webex.com"):
             payload["chat"] = {
                 "on_bot_join": {
                     "send_to": "everyone",

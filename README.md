@@ -131,7 +131,6 @@ The session defaults to ten minutes, starting when the launcher requests the bot
 | --- | --- |
 | `app/web.py` | Local meeting form and the two server entrypoints. |
 | `app/templates/index.html` | One meeting-URL input and launch status. |
-| `app/meeting_url.py` | Validate direct meeting links. |
 | `app/agent.py` | Phonic instructions, native configuration, and saved webhook tool setup. |
 | `app/tool_server.py` | Authenticate callbacks, bind them to the launched bot, serialize actions, and expire sessions. |
 | `app/meeting_tools.py` | Five actions, chat feedback, and the last accepted page URL. |
