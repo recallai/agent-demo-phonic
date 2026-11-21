@@ -106,7 +106,10 @@ class RecallClient:
             },
             "output_media": {"audio": {"kind": "phonic", "config": phonic_config}},
         }
-        host = urlsplit(meeting_url).hostname or ""
+        try:
+            host = urlsplit(meeting_url).hostname or ""
+        except ValueError:
+            host = ""  # Let Create Bot handle malformed links.
         if host != "webex.com" and not host.endswith(".webex.com"):
             payload["chat"] = {
                 "on_bot_join": {
