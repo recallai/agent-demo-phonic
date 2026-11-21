@@ -104,11 +104,11 @@ Keep the app and tunnel running, then open [the launcher](http://127.0.0.1:8006)
 
 ### 6. Send the agent to a meeting
 
-For your first test, start a Google Meet call at [meet.new](https://meet.new/). You can also use a link from any supported platform. Paste the direct meeting link into the launcher, select **Send agent**, and admit **phonic demo** if prompted.
+For your first test, start a Google Meet call at [meet.new](https://meet.new/). Paste the direct meeting link into the launcher, select **Send agent**, and admit **phonic demo** if prompted.
 
 ### 7. Try the agent
 
-Try the chat commands in Zoom, Google Meet, or a Teams meeting with chat enabled. On Webex, try asking a question, sharing a page, stopping the share, and leaving. [Recall chat support](https://docs.recall.ai/docs/sending-chat-messages)
+Try the chat commands in a meeting that allows bot chat. [Recall chat support](https://docs.recall.ai/docs/sending-chat-messages)
 
 | Try saying |
 | --- |
@@ -121,7 +121,7 @@ Try the chat commands in Zoom, Google Meet, or a Teams meeting with chat enabled
 | “Assistant, stop sharing.” |
 | “Assistant, leave the meeting.” |
 
-Confirm that the new page replaces the previous share, its exact link appears in chat, and voice still works after sharing stops. API acceptance does not prove that the webpage finished loading or that participants saw it.
+Confirm that the new page replaces the previous share and voice still works after sharing stops. When chat is available, check that the exact link appears. API acceptance does not prove that the webpage finished loading or that participants saw it.
 
 The session defaults to ten minutes, starting when the launcher requests the bot. Expiration invalidates the tool token and requests departure. Ctrl+C also requests departure for active sessions. If departure cannot be confirmed, check the meeting or Recall dashboard before closing the tunnel. After the bot leaves, stop the app and tunnel. Launch another bot to repeat the demo.
 
